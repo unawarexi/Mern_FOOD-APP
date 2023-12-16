@@ -1,0 +1,7 @@
+export {default as LoginBg} from "./food/woman-6754248_1280.jpg"
+export {default as Logo} from "./food/logo.png"
+export {default as Avatar} from "./food/avatar.png"
+export {default as Mango} from "./food/f1.png"
+export {default as Delivery} from "./food/delivery.png"
+export {default as HeroBg} from "./food/heroBg.png"
+export {default as Bill} from "./food/r1.png"
