@@ -1,4 +1,4 @@
-export {default as LoginBg} from "./food/woman-6754248_1280.jpg"
+export {default as LoginBg} from "./food/pexels-ella-olsson-1640777.jpg"
 export {default as Logo} from "./food/logo.png"
 export {default as Avatar} from "./food/avatar.png"
 export {default as Mango} from "./food/f1.png"
