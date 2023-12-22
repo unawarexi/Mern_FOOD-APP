@@ -5,6 +5,17 @@ import { useState } from "react";
 import { FaEnvelope, FaLock, FcGoogle } from "../assets/icons/Icons";
 import { motion } from "framer-motion";
 import { buttonClick } from "../animations/Animation";
+import { useNavigate } from "react-router-dom";
+
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { app } from "../config/firebase.config";
+import { validateUserJWTToken } from "../api/IndexApi";
 
 const Login = () => {
   const [UserEmail, setUserEmail] = useState("");
@@ -12,6 +23,89 @@ const Login = () => {
 
   const [password, setpassword] = useState("");
   const [ConfirmPassword, setConfirmPassword] = useState("");
+
+  const firebaseAuth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  {
+    /**===== NAVIGATE FUNCTION AFTER LOGIN/SIGNUP ==== */
+  }
+  const navigate = useNavigate();
+
+  const loginWithGoogle = async () => {
+    await signInWithPopup(firebaseAuth, provider).then((userCred) => {
+      firebaseAuth.onAuthStateChanged((cred) => {
+        if (cred) {
+          cred.getIdToken().then((token) => {
+            validateUserJWTToken(token).then((data) => {
+              console.log(data);
+            });
+
+            navigate("/", { replace: true });
+          });
+        }
+      });
+    });
+  };
+
+  {
+    /**============== SIGNUP WITH EMAIL AND PASSWORD FUNCTION =============== */
+  }
+
+  const signUpWithEmailPassword = async () => {
+    if (UserEmail === "" || password === "" || ConfirmPassword === "") {
+      //  alert
+    } else {
+      if (password === ConfirmPassword) {
+        setUserEmail("");
+        setConfirmPassword("");
+        setpassword("");
+        await createUserWithEmailAndPassword(
+          firebaseAuth,
+          UserEmail,
+          password
+        ).then((userCred) => {
+          firebaseAuth.onAuthStateChanged((cred) => {
+            if (cred) {
+              cred.getIdToken().then((token) => {
+                validateUserJWTToken(token).then((data) => {
+                  console.log(data);
+                });
+                navigate("/", { replace: true });
+              });
+            }
+          });
+        });
+      } else {
+        // alert
+      }
+    }
+  };
+
+  {
+    /**============== SIGNin WITH EMAIL AND PASSWORD FUNCTION =============== */
+  }
+
+  const signInWithEmailPass = async () => {
+    if (UserEmail !== "" && password !== "") {
+      await signInWithEmailAndPassword(firebaseAuth, UserEmail, password).then(
+        (userCred) => {
+          firebaseAuth.onAuthStateChanged((cred) => {
+            if (cred) {
+              cred.getIdToken().then((token) => {
+                validateUserJWTToken(token).then((data) => {
+                  console.log(data);
+                });
+                navigate("/", { replace: true });
+              });
+            }
+          });
+        }
+      );
+    } else {
+      // alert
+    }
+  };
 
   return (
     <div className="w-screen h-screen relative overflow-hidden flex">
@@ -103,6 +197,7 @@ const Login = () => {
               {...buttonClick}
               className="w-full px-4 py-2 rounded-md bg-red-400 cursor-pointer text-center
            text-white text-xl capitalize hover:bg-red-500 transition-all duration-300 "
+              onClick={signInWithEmailPass}
             >
               Sign in
             </motion.div>
@@ -111,6 +206,7 @@ const Login = () => {
               {...buttonClick}
               className="w-full px-4 py-2 rounded-md bg-red-400 cursor-pointer text-center
           text-white text-xl capitalize hover:bg-red-500 transition-all duration-300 "
+              onClick={signUpWithEmailPassword}
             >
               Sign up
             </motion.div>
@@ -129,9 +225,12 @@ const Login = () => {
           {...buttonClick}
           className="flex items-center text-center justify-center px-20 py-2 rounded-full bg-cardOverlay 
           cursor-pointer backdrop-blur-md gap-4 hover:bg-white  transition-all duration-300 "
+          onClick={loginWithGoogle}
         >
           <FcGoogle className="w-8" />
-          <p className="text-base capitalize text-headingColor">Sign in with Google</p>
+          <p className="text-base capitalize text-headingColor">
+            Sign in with Google
+          </p>
         </motion.div>
       </div>
     </div>
