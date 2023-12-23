@@ -1,7 +1,7 @@
 import React from "react";
 import { LoginBg, Logo } from "../assets/Image";
 import { LoginInput } from "../components/ExpComp";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEnvelope, FaLock, FcGoogle } from "../assets/icons/Icons";
 import { motion } from "framer-motion";
 import { buttonClick } from "../animations/Animation";
@@ -16,6 +16,8 @@ import {
 } from "firebase/auth";
 import { app } from "../config/firebase.config";
 import { validateUserJWTToken } from "../api/IndexApi";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserDetails } from "./../context/actions/UserAction.jsx";
 
 const Login = () => {
   const [UserEmail, setUserEmail] = useState("");
@@ -27,10 +29,24 @@ const Login = () => {
   const firebaseAuth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
+
+  {
+    /**===== NAVIGATE USER TO MAINPAGE AFTER LOGIN/SIGNUP ==== */
+  }
+  const user = useSelector((state) => state.user);
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user]);
+
+
+
   {
     /**===== NAVIGATE FUNCTION AFTER LOGIN/SIGNUP ==== */
   }
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const loginWithGoogle = async () => {
     await signInWithPopup(firebaseAuth, provider).then((userCred) => {
@@ -38,7 +54,7 @@ const Login = () => {
         if (cred) {
           cred.getIdToken().then((token) => {
             validateUserJWTToken(token).then((data) => {
-              console.log(data);
+              dispatch(setUserDetails(data));
             });
 
             navigate("/", { replace: true });
@@ -69,9 +85,9 @@ const Login = () => {
             if (cred) {
               cred.getIdToken().then((token) => {
                 validateUserJWTToken(token).then((data) => {
-                  console.log(data);
+                  dispatch(setUserDetails(data));
                 });
-                navigate("/", { replace: true });
+                navigate("/main", { replace: true });
               });
             }
           });
@@ -81,6 +97,8 @@ const Login = () => {
       }
     }
   };
+
+
 
   {
     /**============== SIGNin WITH EMAIL AND PASSWORD FUNCTION =============== */
@@ -94,9 +112,9 @@ const Login = () => {
             if (cred) {
               cred.getIdToken().then((token) => {
                 validateUserJWTToken(token).then((data) => {
-                  console.log(data);
+                  dispatch(setUserDetails(data));
                 });
-                navigate("/", { replace: true });
+                navigate("/user", { replace: true });
               });
             }
           });
