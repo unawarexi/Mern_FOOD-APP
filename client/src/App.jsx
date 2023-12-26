@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { LoginMain, Login } from "./containers/LoginExport";
+import { LoginMain, Login, DashBoard } from "./containers/LoginExport";
 import { app } from "./config/firebase.config";
 import { getAuth } from "firebase/auth";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { validateUserJWTToken } from "./api/IndexApi";
 import { setUserDetails } from "./context/actions/UserAction.jsx";
 import { motion } from "framer-motion";
@@ -15,6 +15,7 @@ import Alert from "./components/Alert.jsx";
 const App = () => {
   const firebaseAuth = getAuth(app);
   const [isLoadiing, setisLoadiing] = useState(false);
+  const alert = useSelector(state => state.alert)
 
   const dispatch = useDispatch();
 
@@ -54,11 +55,12 @@ const App = () => {
         </motion.div>
       )}
       <Routes>
-        <Route path="/#" element={<LoginMain />} />
+        <Route path="/" element={<LoginMain />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard/*" element={<DashBoard />} />
       </Routes>
 
-      <Alert type = {"warning"} message={"hi there"} />
+      {alert?.type && <Alert type = {alert?.type} message={alert?.message} />}
     </div>
   );
 };
