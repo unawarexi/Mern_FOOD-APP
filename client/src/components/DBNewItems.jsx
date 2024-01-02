@@ -20,10 +20,8 @@ import {
 import { motion } from "framer-motion";
 import { buttonClick } from "../animations/Animation";
 import LinearWithValueLabel from "./ProgressBar";
-import { addNewProducts } from "../api/IndexApi";
-
-
-
+import { addNewProducts, getAllProducts } from "../api/IndexApi";
+import { setAllProucts } from "../context/actions/ProductAction";
 
 const DBNewItems = () => {
   const [itemName, setitemName] = useState("");
@@ -50,19 +48,22 @@ const DBNewItems = () => {
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
     uploadTask.on(
       "state_changed",
-      (snapshot) => { // HANDLES THE PROGESS LEVEL COUNTDOWN
+      (snapshot) => {
+        // HANDLES THE PROGESS LEVEL COUNTDOWN
         setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         console.log(`Upload is  ${Progress} % done`);
       },
-      
-      (error) => { // HANDLES THE ERROR AND DISPLAYS ALERT DANGER 3S
+
+      (error) => {
+        // HANDLES THE ERROR AND DISPLAYS ALERT DANGER 3S
         dispatch(AlertDanger(`Error : ${error}`));
         setTimeout(() => {
           dispatch(AlertNull());
         }, 3000);
       },
 
-      () => { // GETS THE UPLOAD AND NOTIFY SUCESS
+      () => {
+        // GETS THE UPLOAD AND NOTIFY SUCESS
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setimgDownloadUrl(downloadURL);
           setisLoading(false);
@@ -82,44 +83,44 @@ const DBNewItems = () => {
 
   const deleteImageFromFirebase = () => {
     setisLoading(true);
-    const deleteRef =  ref(storage, imgDownloadUrl)
+    const deleteRef = ref(storage, imgDownloadUrl);
 
     deleteObject(deleteRef).then(() => {
-      setimgDownloadUrl(null)
-      setisLoading(false)
+      setimgDownloadUrl(null);
+      setisLoading(false);
 
       dispatch(AlertSuccess("Image is successfully Deleted"));
       setTimeout(() => {
         dispatch(AlertNull());
       }, 3000);
-    })
+    });
   };
 
   const submitNewData = () => {
-     const data = {
-        product_name: itemName,
-        product_category: Category,
-        product_price: Price,
-        imageURL: imgDownloadUrl,
-     }
+    const data = {
+      product_name: itemName,
+      product_category: Category,
+      product_price: Price,
+      imageURL: imgDownloadUrl,
+    };
 
-     addNewProducts(data).then(res => {
-      console.log(res)
-      dispatch(AlertSuccess("New Product Added"))
+    addNewProducts(data).then((res) => {
+      console.log(res);
+      dispatch(AlertSuccess("New Product Added"));
       setTimeout(() => {
         dispatch(AlertNull());
       }, 3000);
 
-      setimgDownloadUrl(null)
-      setitemName("")
-      setPrice("")
-      setCategory(null)
+      setimgDownloadUrl(null);
+      setitemName("");
+      setPrice("");
+      setCategory(null);
+    });
 
-     })
-
-     console.log(data)
-
-  }
+    getAllProducts().then((data) => {
+      dispatch(setAllProucts(data));
+    });
+  };
 
   return (
     <div className="flex items-center justify-center flex-col pt-6 px-24 w-full">
@@ -228,17 +229,15 @@ const DBNewItems = () => {
           )}
         </div>
 
-        
         <motion.button
-                      {...buttonClick}
-                      type="button"
-                      className=" w-9/12 py-2 rounded-md bg-red-400 transition-all text-primary
+          {...buttonClick}
+          type="button"
+          className=" w-9/12 py-2 rounded-md bg-red-400 transition-all text-primary
                      ease-in-out duration-500 hover:shadow-md hover:bg-red-500 cursor-pointer text-xl"
-                      onClick={submitNewData}
-                    >
-                     Save
-                    </motion.button>
-
+          onClick={submitNewData}
+        >
+          Save
+        </motion.button>
       </div>
     </div>
   );
