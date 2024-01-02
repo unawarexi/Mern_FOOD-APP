@@ -20,6 +20,7 @@ import {
 import { motion } from "framer-motion";
 import { buttonClick } from "../animations/Animation";
 import LinearWithValueLabel from "./ProgressBar";
+import { addNewProducts } from "../api/IndexApi";
 
 
 
@@ -93,6 +94,32 @@ const DBNewItems = () => {
       }, 3000);
     })
   };
+
+  const submitNewData = () => {
+     const data = {
+        product_name: itemName,
+        product_category: Category,
+        product_price: Price,
+        imageURL: imgDownloadUrl,
+     }
+
+     addNewProducts(data).then(res => {
+      console.log(res)
+      dispatch(AlertSuccess("New Product Added"))
+      setTimeout(() => {
+        dispatch(AlertNull());
+      }, 3000);
+
+      setimgDownloadUrl(null)
+      setitemName("")
+      setPrice("")
+      setCategory(null)
+
+     })
+
+     console.log(data)
+
+  }
 
   return (
     <div className="flex items-center justify-center flex-col pt-6 px-24 w-full">
@@ -179,7 +206,7 @@ const DBNewItems = () => {
                   <div className="relative w-full h-full overflow-hidden rounded-md">
                     <motion.img
                       WhileHover={{ scale: 1.15 }}
-                      className=" w-full h-full object-cover"
+                      className="w-auto h-full object-cover mx-auto my-auto"
                       src={imgDownloadUrl}
                     />
 
@@ -200,6 +227,18 @@ const DBNewItems = () => {
             </>
           )}
         </div>
+
+        
+        <motion.button
+                      {...buttonClick}
+                      type="button"
+                      className=" w-9/12 py-2 rounded-md bg-red-400 transition-all text-primary
+                     ease-in-out duration-500 hover:shadow-md hover:bg-red-500 cursor-pointer text-xl"
+                      onClick={submitNewData}
+                    >
+                     Save
+                    </motion.button>
+
       </div>
     </div>
   );
