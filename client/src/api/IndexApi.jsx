@@ -29,3 +29,15 @@ export const addNewProducts = async (data) => {
         
     }
 }
+
+
+export const getAllProducts = async () => {
+    try {
+        const res = await axios.get(`${baseURL}/api/products/all`)
+        return res.data.data
+    } catch (error) {
+
+        return null;
+        
+    }
+}
